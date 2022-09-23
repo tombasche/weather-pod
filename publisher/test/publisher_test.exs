@@ -1,8 +1,20 @@
 defmodule PublisherTest do
-  use ExUnit.Case
-  doctest Publisher
+  use ExUnit.Case, async: true
 
-  test "greets the world" do
-    assert Publisher.hello() == :world
+  test "timestamp is added to the measurements" do
+    state = %{
+      interval: 10_000,
+      weather_tracker_url: "some-test-url",
+      sensors: [],
+      measurements: :no_measurements
+    }
+
+    result = Publisher.measure(state)
+
+    assert %{
+             measurements: %{
+               timestamp: nil
+             }
+           } != result
   end
 end

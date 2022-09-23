@@ -29,14 +29,16 @@ defmodule Publisher do
     {:noreply, state |> measure() |> publish()}
   end
 
-  defp measure(state) do
+  def measure(state) do
+    base = %{timestamp: NaiveDateTime.utc_now()}
+
     measurements =
-      Enum.reduce(state.sensors, %{}, fn sensor, acc ->
+      Enum.reduce(state.sensors, base, fn sensor, acc ->
         sensor_data = sensor.read.() |> sensor.convert.()
         Map.merge(acc, sensor_data)
       end)
 
-    %{state | measurements: %{measurements | timestamp: NaiveDateTime.utc_now()}}
+    %{state | measurements: measurements}
   end
 
   defp publish(state) do

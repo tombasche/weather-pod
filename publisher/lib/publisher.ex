@@ -32,11 +32,11 @@ defmodule Publisher do
   defp measure(state) do
     measurements =
       Enum.reduce(state.sensors, %{}, fn sensor, acc ->
-        sensor_data = sensor.read |> sensor.convert.()
+        sensor_data = sensor.read.() |> sensor.convert.()
         Map.merge(acc, sensor_data)
       end)
 
-    %{state | measurements: measurements}
+    %{state | measurements: %{measurements | timestamp: NaiveDateTime.utc_now()}}
   end
 
   defp publish(state) do

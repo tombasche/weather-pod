@@ -87,4 +87,4 @@ config :mdns_lite,
     }
   ]
 
-config :sensor_hub, :weather_tracker_url, "http://192.168.1.1:4000/api/weather-conditions"
+config :sensor_hub, :weather_tracker_url, "http://192.168.178.27:4000/api/weather-conditions"

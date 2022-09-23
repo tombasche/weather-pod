@@ -50,14 +50,20 @@ config :vintage_net,
        type: VintageNetEthernet,
        ipv4: %{method: :dhcp}
      }},
-    {"wlan0", %{type: VintageNetWiFi, vintage_net_wifi: %{
-      networks: [%{
-        key_mgmt: :wpa_psk,
-        ssid: "BatCave",
-        psk: "75831302382400937878" # todo remove this
-      }],
-      ipv4: %{method: :dhcp}
-    }}}
+    {"wlan0",
+     %{
+       type: VintageNetWiFi,
+       vintage_net_wifi: %{
+         networks: [
+           %{
+             key_mgmt: :wpa_psk,
+             ssid: "BatCave",
+             psk: ""
+           }
+         ],
+         ipv4: %{method: :dhcp}
+       }
+     }}
   ]
 
 config :mdns_lite,
@@ -69,7 +75,7 @@ config :mdns_lite,
   # because otherwise any of the devices may respond to nerves.local leading to
   # unpredictable behavior.
 
-  hosts: [:hostname, "nerves"],
+  hosts: [:hostname, "pod"],
   ttl: 120,
 
   # Advertise the following services over mDNS.

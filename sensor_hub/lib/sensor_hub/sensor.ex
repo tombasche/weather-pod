@@ -10,8 +10,17 @@ defmodule SensorHub.Sensor do
     }
   end
 
+  @enviro_fields [
+    :altitude_m,
+    :pressure_pa,
+    :temperature_c,
+    :dew_point_c,
+    :humidity_rh,
+    :gas_resistance_ohms
+  ]
+
   def fields(BMP280),
-    do: [:altitude_m, :pressure_pa, :temperature_c, :humidity_rh, :gas_resistance_ohms]
+    do: @enviro_fields
 
   def read_fn(BMP280), do: fn -> BMP280.measure(BMP280) end
 
@@ -19,13 +28,7 @@ defmodule SensorHub.Sensor do
     fn reading ->
       case reading do
         {:ok, measurement} ->
-          Map.take(measurement, [
-            :altitude_m,
-            :pressure_pa,
-            :temperature_c,
-            :humidity_rh,
-            :gas_resistance_ohms
-          ])
+          Map.take(measurement, @enviro_fields)
 
         _ ->
           %{}

@@ -1,7 +1,5 @@
 defmodule SensorHub.Application do
-  # See https://hexdocs.pm/elixir/Application.html
-  # for more information on OTP Applications
-  @moduledoc false
+  alias SensorHub.Sensor
 
   use Application
 
@@ -16,13 +14,12 @@ defmodule SensorHub.Application do
 
   # List all child processes to be supervised
   def children(:host) do
-    [
-    ]
+    []
   end
 
   def children(_target) do
     [
-      {BMP280: [i2c_address: 0x77, name: BMP280]}
+      {BMP280, [i2c_address: 0x77, name: BMP280]},
       {Finch, name: WeatherTrackerClient},
       {
         Publisher,

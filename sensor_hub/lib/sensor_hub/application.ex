@@ -23,7 +23,23 @@ defmodule SensorHub.Application do
   def children(_target) do
     [
       {BMP280: [i2c_address: 0x77, name: BMP280]}
+      {Finch, name: WeatherTrackerClient},
+      {
+        Publisher,
+        %{
+          sensors: sensors(),
+          weather_tracker_url: weather_tracker_url()
+        }
+      }
     ]
+  end
+
+  defp sensors do
+    [Sensor.new(BMP280)]
+  end
+
+  defp weather_tracker_url do
+    Application.get_env(:sensor_hub, :weather_tracker_url)
   end
 
   def target() do

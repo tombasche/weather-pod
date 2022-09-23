@@ -39,6 +39,7 @@ defmodule SensorHub.MixProject do
       {:bmp280, "~> 0.2.11"},
 
       # Dependencies for all targets except :host
+      {:publisher, path: "../publisher", targets: @all_targets},
       {:nerves_runtime, "~> 0.13.0", targets: @all_targets},
       {:nerves_pack, "~> 0.7.0", targets: @all_targets},
 

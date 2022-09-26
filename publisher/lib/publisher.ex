@@ -1,5 +1,6 @@
 defmodule Publisher do
   use GenServer
+  use GRPC.Server, service: WeatherConditionService.Service
 
   require Logger
 
@@ -11,8 +12,8 @@ defmodule Publisher do
   def init(options) do
     state = %{
       interval: options[:interval] || 10_000,
-      weather_tracker_url: options[:weather_tracker_url],
       sensors: options[:sensors],
+      channel: options[:channel],
       measurements: :no_measurements
     }
 
@@ -42,16 +43,13 @@ defmodule Publisher do
   end
 
   defp publish(state) do
-    result =
-      :post
-      |> Finch.build(
-        state.weather_tracker_url,
-        [{"Content-Type", "application/json"}],
-        Jason.encode!(state.measurements)
-      )
-      |> Finch.request(WeatherTrackerClient)
+    result = WeatherConditionEvent.new(state)
 
-    Logger.debug("Server response: #{inspect(result)}")
+    Logger.debug("[app] Connected to gRPC #{state.channel}")
+
+    state.channel
+    |> WeatherConditionService.Stub.create(result)
+
     schedule_next_publish(state.interval)
     state
   end

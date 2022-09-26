@@ -19,8 +19,8 @@ defmodule Publisher.MixProject do
 
   defp deps do
     [
-      {:finch, "~> 0.13"},
-      {:jason, "~> 1.4"}
+      {:grpc, "~> 0.5.0"},
+      {:protobuf, "~> 0.10"}
     ]
   end
 end

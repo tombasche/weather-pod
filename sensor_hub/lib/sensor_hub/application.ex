@@ -4,6 +4,9 @@ defmodule SensorHub.Application do
 
   use Application
 
+  @grpc_wait_time_ms 1000
+  @grpc_retries 3
+
   @impl true
   def start(_type, _args) do
     opts = [strategy: :one_for_one, name: SensorHub.Supervisor, restart: :transient]
@@ -39,9 +42,7 @@ defmodule SensorHub.Application do
     Application.get_env(:sensor_hub, :target)
   end
 
-  defp grpc_channel(_ = 0), do: :ignore
-
-  defp grpc_channel(retry \\ 3) do
+  defp grpc_channel(retry \\ @grpc_retries) do
     env = Application.get_env(:sensor_hub, :weather_tracker_url)
 
     case GRPC.Stub.connect(env) do
@@ -54,8 +55,10 @@ defmodule SensorHub.Application do
           "[app] Couldn't connect to gRPC server due to #{error} - retrying [#{retry}]"
         )
 
-        Process.sleep(1000)
+        Process.sleep(@grpc_wait_time_ms)
         grpc_channel(retry - 1)
     end
   end
+
+  defp grpc_channel(_ = 0), do: :ignore
 end

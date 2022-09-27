@@ -9,7 +9,7 @@ defmodule SensorHub.Application do
 
   @impl true
   def start(_type, _args) do
-    opts = [strategy: :one_for_one, name: SensorHub.Supervisor, restart: :transient]
+    opts = [strategy: :one_for_one, name: SensorHub.Supervisor]
 
     children = children(target())
 
@@ -46,8 +46,13 @@ defmodule SensorHub.Application do
     Application.get_env(:sensor_hub, :weather_tracker_url)
   end
 
-  defp grpc_channel(env, retry \\ @grpc_retries) do
+  defp grpc_channel(env, retry \\ @grpc_retries)
 
+  defp grpc_channel(env, _ = 0) do
+    raise RuntimeError, message: "Failed to connect to gRPC env #{env}"
+  end
+
+  defp grpc_channel(env, retry) do
     case GRPC.Stub.connect(env) do
       {:ok, channel} ->
         Logger.debug("Connected to #{env}")
@@ -59,11 +64,7 @@ defmodule SensorHub.Application do
         )
 
         Process.sleep(@grpc_wait_time_ms)
-        grpc_channel(retry - 1)
+        grpc_channel(env, retry - 1)
     end
-  end
-
-  defp grpc_channel(env, _ = 0), do
-    raise RuntimeError, message: "Failed to connect to gRPC env #{env}"
   end
 end

@@ -1,5 +1,5 @@
 defmodule Publisher do
-  use GenServer
+  use GenServer, restart: :transient
   use GRPC.Server, service: WeatherConditionService.Service
 
   require Logger
@@ -49,6 +49,12 @@ defmodule Publisher do
     |> WeatherConditionService.Stub.create(result)
 
     schedule_next_publish(state.interval)
-    state
+
+    %{
+      interval: state.interval,
+      sensors: state.sensors,
+      channel: state.channel,
+      measurements: state.measurements
+    }
   end
 end

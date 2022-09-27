@@ -28,7 +28,7 @@ defmodule SensorHub.Application do
         Publisher,
         %{
           sensors: sensors(),
-          channel: grpc_channel()
+          channel: grpc_channel(grpc_env())
         }
       }
     ]
@@ -42,8 +42,11 @@ defmodule SensorHub.Application do
     Application.get_env(:sensor_hub, :target)
   end
 
-  defp grpc_channel(retry \\ @grpc_retries) do
-    env = Application.get_env(:sensor_hub, :weather_tracker_url)
+  def grpc_env() do
+    Application.get_env(:sensor_hub, :weather_tracker_url)
+  end
+
+  defp grpc_channel(env, retry \\ @grpc_retries) do
 
     case GRPC.Stub.connect(env) do
       {:ok, channel} ->
@@ -60,5 +63,7 @@ defmodule SensorHub.Application do
     end
   end
 
-  defp grpc_channel(_ = 0), do: :ignore
+  defp grpc_channel(env, _ = 0), do
+    raise RuntimeError, message: "Failed to connect to gRPC env #{env}"
+  end
 end

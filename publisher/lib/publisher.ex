@@ -31,7 +31,7 @@ defmodule Publisher do
   end
 
   def measure(state) do
-    base = %{timestamp: NaiveDateTime.utc_now()}
+    base = %{timestamp: NaiveDateTime.to_string(NaiveDateTime.utc_now())}
 
     measurements =
       Enum.reduce(state.sensors, base, fn sensor, acc ->
@@ -43,9 +43,7 @@ defmodule Publisher do
   end
 
   defp publish(state) do
-    result = WeatherConditionEvent.new(state)
-
-    Logger.debug("[app] Connected to gRPC #{state.channel}")
+    result = WeatherConditionEvent.new(state.measurements)
 
     state.channel
     |> WeatherConditionService.Stub.create(result)

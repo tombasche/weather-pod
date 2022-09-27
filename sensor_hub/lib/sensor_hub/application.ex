@@ -6,9 +6,9 @@ defmodule SensorHub.Application do
 
   @impl true
   def start(_type, _args) do
-    opts = [strategy: :one_for_one, name: SensorHub.Supervisor]
+    opts = [strategy: :one_for_one, name: SensorHub.Supervisor, restart: :transient]
 
-    children = children(target(), grpc_channel())
+    children = children(target())
 
     Supervisor.start_link(children, opts)
   end
@@ -18,14 +18,14 @@ defmodule SensorHub.Application do
     []
   end
 
-  def children(_target, channel) do
+  def children(_target) do
     [
       {BMP280, [i2c_address: 0x77, name: BMP280]},
       {
         Publisher,
         %{
           sensors: sensors(),
-          channel: channel
+          channel: grpc_channel()
         }
       }
     ]
@@ -35,20 +35,27 @@ defmodule SensorHub.Application do
     [Sensor.new(BMP280)]
   end
 
-  defp grpc_channel do
+  def target() do
+    Application.get_env(:sensor_hub, :target)
+  end
+
+  defp grpc_channel(_ = 0), do: :ignore
+
+  defp grpc_channel(retry \\ 3) do
     env = Application.get_env(:sensor_hub, :weather_tracker_url)
 
     case GRPC.Stub.connect(env) do
       {:ok, channel} ->
-        Logger.debug("Connected to #{channel}")
+        Logger.debug("Connected to #{env}")
         channel
 
       {:error, error} ->
-        Logger.debug("[app] Couldn't connect to gRPC server due to #{error}")
-    end
-  end
+        Logger.error(
+          "[app] Couldn't connect to gRPC server due to #{error} - retrying [#{retry}]"
+        )
 
-  def target() do
-    Application.get_env(:sensor_hub, :target)
+        Process.sleep(1000)
+        grpc_channel(retry - 1)
+    end
   end
 end

@@ -88,3 +88,5 @@ config :mdns_lite,
   ]
 
 config :sensor_hub, :weather_tracker_url, "192.168.178.27:50051"
+# 1 minute
+config :sensor_hub, :polling_interval, 60_000

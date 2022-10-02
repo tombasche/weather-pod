@@ -16,7 +16,6 @@ defmodule SensorHub.Application do
     Supervisor.start_link(children, opts)
   end
 
-  # List all child processes to be supervised
   def children(:host) do
     []
   end
@@ -28,7 +27,8 @@ defmodule SensorHub.Application do
         Publisher,
         %{
           sensors: sensors(),
-          channel: grpc_channel(grpc_env())
+          channel: grpc_channel(grpc_env()),
+          interval: polling_interval()
         }
       }
     ]
@@ -66,5 +66,9 @@ defmodule SensorHub.Application do
         Process.sleep(@grpc_wait_time_ms)
         grpc_channel(env, retry - 1)
     end
+  end
+
+  defp polling_interval() do
+    Application.get_env(:sensor_hub, :polling_interval)
   end
 end

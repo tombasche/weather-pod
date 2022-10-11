@@ -1,5 +1,6 @@
 import Config
 
+Code.require_file("config/helpers.ex")
 # Use shoehorn to start the main application. See the shoehorn
 # library documentation for more control in ordering how OTP
 # applications are started and handling failures.
@@ -39,14 +40,6 @@ if keys == [],
 config :nerves_ssh,
   authorized_keys: Enum.map(keys, &File.read!/1)
 
-wifi_ssid = System.get_env("WIFI_NAME")
-
-if wifi_ssid == nil, do: Mix.raise("WIFI_NAME must be set - did you run ./firmware.sh?")
-
-wifi_pw = System.get_env("WIFI_PASSWORD")
-
-if wifi_pw == nil, do: Mix.raise("WIFI_PASSWORD must be set - did you run ./firmware.sh?")
-
 # Configure the network using vintage_net
 # See https://github.com/nerves-networking/vintage_net for more information
 config :vintage_net,
@@ -65,8 +58,8 @@ config :vintage_net,
          networks: [
            %{
              key_mgmt: :wpa_psk,
-             ssid: wifi_ssid,
-             psk: wifi_pw
+             ssid: ConfigHelpers.env_or_throw("WIFI_NAME"),
+             psk: ConfigHelpers.env_or_throw("WIFI_PASSWORD")
            }
          ],
          ipv4: %{method: :dhcp}
@@ -95,17 +88,10 @@ config :mdns_lite,
     }
   ]
 
-server = System.get_env("SERVER_URI")
-if server == nil, do: Mix.raise("SERVER_URI must be set - did you run ./firmware.sh?")
-
-config :sensor_hub, :weather_tracker_url, server
+config :sensor_hub, :weather_tracker_url, ConfigHelpers.env_or_throw("SERVER_URI")
 
 # 1 minute
 config :sensor_hub, :polling_interval, 60_000
 
-device_source = System.get_env("SOURCE")
-
-if device_source == nil, do: Mix.raise("SOURCE must be set - did you run ./firmware.sh?")
-
 # where the device is located
-config :sensor_hub, :source, device_source
+config :sensor_hub, :source, ConfigHelpers.env_or_throw("SOURCE")

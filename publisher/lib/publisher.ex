@@ -11,6 +11,7 @@ defmodule Publisher do
   @impl true
   def init(options) do
     state = %{
+      source: options[:source],
       interval: options[:interval],
       sensors: options[:sensors],
       channel: options[:channel],
@@ -31,7 +32,10 @@ defmodule Publisher do
   end
 
   def measure(state) do
-    base = %{timestamp: NaiveDateTime.to_string(NaiveDateTime.utc_now())}
+    base = %{
+      timestamp: DateTime.to_string(DateTime.utc_now()),
+      source: state.source
+    }
 
     measurements =
       Enum.reduce(state.sensors, base, fn sensor, acc ->
@@ -51,6 +55,7 @@ defmodule Publisher do
     schedule_next_publish(state.interval)
 
     %{
+      source: state.source,
       interval: state.interval,
       sensors: state.sensors,
       channel: state.channel,

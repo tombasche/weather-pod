@@ -87,6 +87,15 @@ config :mdns_lite,
     }
   ]
 
-config :sensor_hub, :weather_tracker_url, "192.168.178.27:50051"
+config :sensor_hub, :weather_tracker_url, System.get_env("SERVER_URI", "192.168.178.27:50051")
 # 1 minute
 config :sensor_hub, :polling_interval, 60_000
+
+device_source = System.get_env("SOURCE")
+
+if device_source == nil do
+  Mix.raise("SOURCE must be set on the environment when creating the firmware.")
+end
+
+# where the device is located
+config :sensor_hub, :source, device_source

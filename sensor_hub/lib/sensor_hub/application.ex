@@ -26,6 +26,7 @@ defmodule SensorHub.Application do
       {
         Publisher,
         %{
+          source: source(),
           sensors: sensors(),
           channel: grpc_channel(grpc_env()),
           interval: polling_interval()
@@ -44,6 +45,10 @@ defmodule SensorHub.Application do
 
   def grpc_env() do
     Application.get_env(:sensor_hub, :weather_tracker_url)
+  end
+
+  def source() do
+    Application.get_env(:sensor_hub, :source)
   end
 
   defp grpc_channel(env, retry \\ @grpc_retries)

@@ -41,11 +41,11 @@ config :nerves_ssh,
 
 wifi_ssid = System.get_env("WIFI_NAME")
 
-if wifi_ssid == nil, do: Mix.raise("WIFI_NAME must be set - this is the wifi name")
+if wifi_ssid == nil, do: Mix.raise("WIFI_NAME must be set - did you run ./firmware.sh?")
 
 wifi_pw = System.get_env("WIFI_PASSWORD")
 
-if wifi_pw == nil, do: Mix.raise("WIFI_PASSWORD must be set")
+if wifi_pw == nil, do: Mix.raise("WIFI_PASSWORD must be set - did you run ./firmware.sh?")
 
 # Configure the network using vintage_net
 # See https://github.com/nerves-networking/vintage_net for more information
@@ -95,15 +95,17 @@ config :mdns_lite,
     }
   ]
 
-config :sensor_hub, :weather_tracker_url, System.get_env("SERVER_URI", "192.168.178.27:50051")
+server = System.get_env("SERVER_URI")
+if server == nil, do: Mix.raise("SERVER_URI must be set - did you run ./firmware.sh?")
+
+config :sensor_hub, :weather_tracker_url, server
+
 # 1 minute
 config :sensor_hub, :polling_interval, 60_000
 
 device_source = System.get_env("SOURCE")
 
-if device_source == nil do
-  Mix.raise("SOURCE must be set on the environment when creating the firmware.")
-end
+if device_source == nil, do: Mix.raise("SOURCE must be set - did you run ./firmware.sh?")
 
 # where the device is located
 config :sensor_hub, :source, device_source

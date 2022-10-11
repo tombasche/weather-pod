@@ -39,6 +39,14 @@ if keys == [],
 config :nerves_ssh,
   authorized_keys: Enum.map(keys, &File.read!/1)
 
+wifi_ssid = System.get_env("WIFI_NAME")
+
+if wifi_ssid == nil, do: Mix.raise("WIFI_NAME must be set - this is the wifi name")
+
+wifi_pw = System.get_env("WIFI_PASSWORD")
+
+if wifi_pw == nil, do: Mix.raise("WIFI_PASSWORD must be set")
+
 # Configure the network using vintage_net
 # See https://github.com/nerves-networking/vintage_net for more information
 config :vintage_net,
@@ -57,8 +65,8 @@ config :vintage_net,
          networks: [
            %{
              key_mgmt: :wpa_psk,
-             ssid: "BatCave",
-             psk: ""
+             ssid: wifi_ssid,
+             psk: wifi_pw
            }
          ],
          ipv4: %{method: :dhcp}
